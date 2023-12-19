@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Pemakaman {
+  ID_Pemakaman Int    @id @default(autoincrement())
+  Nama         String
+  Alamat       String
+  Deskripsi    String
+  Foto         String?
+
+  Makams       Makam[]
+}
+
+model Makam {
+  ID_Makam         Int                   @id @default(autoincrement())
+  ID_Pemakaman     Int
+  ID_Pemilik_Makam Int
+  ID_kelas_makam   Int
+  Nama             String
+  Tanggal_Wafat    DateTime
+  Nomor_Makam      String
+  Status_Makam     String
+  catatan_makam    String?
+
+  Pemakaman        Pemakaman             @relation(fields: [ID_Pemakaman], references: [ID_Pemakaman])
+  Kelas_Makam      Kelas_Makam           @relation(fields: [ID_kelas_makam], references: [ID_kelas_makam])
+
+  Layanan_Tambahans Layanan_Tambahan[]
+  Permintaan_Tambah_Makam Permintaan_Tambah_Makam[]
+}
+
+model Kelas_Makam {
+  ID_kelas_makam Int    @id @default(autoincrement())
+  nama_kelas     String
+  layanan        String
+  harga          Int
+
+  Makams         Makam[]
+  permintaan_tambah_makam Permintaan_Tambah_Makam[]
+}
+
+model Layanan_Tambahan {
+  ID_Layanan     Int      @id @default(autoincrement())
+  ID_Makam       Int
+  ID_Pengguna    Int
+  Nama_Layanan   String
+  Deskripsi      String
+  Biaya_layanan  Int
+  tanggal_layanan DateTime
+  status_layanan String
+
+  Makam          Makam   @relation(fields: [ID_Makam], references: [ID_Makam])
+  Pengguna       Pengguna @relation(fields: [ID_Pengguna], references: [ID_Pengguna])
+}
+
+model Pengguna {
+  ID_Pengguna    Int    @id @default(autoincrement())
+  Nama_Pengguna  String
+  Email          String
+  Kata_Sandi_Hash String
+  Peran          String
+
+  Layanan_Tambahans Layanan_Tambahan[]
+  Permintaan_Tambah_Makam Permintaan_Tambah_Makam[]
+}
+
+model Permintaan_Tambah_Makam {
+  ID_Permintaan  Int    @id @default(autoincrement())
+  ID_Pengguna    Int
+  ID_Kelas_Makam Int
+  Nama           String
+  Tanggal_Wafat  DateTime
+  Nomor_Makam_Pilihan String
+  Status_Permintaan String
+
+  Pengguna       Pengguna      @relation(fields: [ID_Pengguna], references: [ID_Pengguna])
+  Kelas_Makam    Kelas_Makam   @relation(fields: [ID_Kelas_Makam], references: [ID_kelas_makam])
+  Makams         Makam[]
+}
+
+
+
+// Tabel Permintaan_Tambah_Makam:
+// ID_Permintaan (Primary Key)
+// ID_Pengguna (Foreign Key mengacu ke Tabel Pengguna)
+// ID_Pemakaman (Foreign Key mengacu ke Tabel Pemakaman)
+// Nama (nama orang yang akan disemayamkan)
+// Tanggal_Wafat
+// Nomor_Makam_Pilihan
+// Status_Permintaan (pending, disetujui, ditolak)
+
